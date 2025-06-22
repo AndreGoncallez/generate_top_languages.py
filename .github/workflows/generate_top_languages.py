@@ -1,6 +1,6 @@
+import requests
 from collections import Counter
 import os
-import requests
 import matplotlib.pyplot as plt
 
 # -------- CONFIGURAÇÕES --------
@@ -43,33 +43,23 @@ def get_language_stats(repos):
 
     return language_counter
 
-# -------- FUNÇÃO PARA GERAR GRÁFICO DE BARRAS HORIZONTAIS --------
+# -------- FUNÇÃO PARA GERAR O GRÁFICO --------
 def plot_language_stats(language_stats, output_file="top_langs.png"):
-    labels = list(language_stats.keys())
-    sizes = list(language_stats.values())
+    labels = []
+    sizes = []
 
-    # Calcular porcentagens
-    total = sum(sizes)
-    percentages = [(size / total) * 100 for size in sizes]
+    for language, count in language_stats.most_common():
+        labels.append(f"{language} ({count})")
+        sizes.append(count)
 
-    # Cores do matplotlib
-    colors = plt.cm.tab10.colors
+    if not sizes:
+        print("Nenhuma linguagem detectada para gerar o gráfico.")
+        return
 
-    plt.figure(figsize=(10, 6))
-    bars = plt.barh(labels, percentages, color=colors[:len(labels)])
-
-    plt.xlabel('Porcentagem de Uso (%)')
-    plt.title(f"Linguagens mais usadas por {GITHUB_USERNAME} (Incluindo Forks)")
-
-    # Adicionar os valores de porcentagem nas barras
-    for bar, percent in zip(bars, percentages):
-        plt.text(
-            bar.get_width() + 0.5,
-            bar.get_y() + bar.get_height() / 2,
-            f'{percent:.1f}%',
-            va='center'
-        )
-
+    plt.figure(figsize=(8, 8))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10})
+    plt.title(f"Linguagens mais usadas por {GITHUB_USERNAME} (Incluindo Forks)", fontsize=14)
+    plt.axis('equal')
     plt.tight_layout()
     plt.savefig(output_file, dpi=200)
     plt.close()

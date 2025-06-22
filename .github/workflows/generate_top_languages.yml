@@ -1,0 +1,38 @@
+name: Generate Top Languages Chart
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   
+  schedule:
+    - cron: '0 0 * * 0'   
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install matplotlib requests
+
+      - name: Run Python Script
+        run: |
+          python generate_top_languages.py
+
+      - name: Commit and Push generated image
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add top_langs.png
+          git commit -m "Atualiza gráfico de linguagens via GitHub Actions" || echo "Nenhuma alteração para commitar"
+          git push
